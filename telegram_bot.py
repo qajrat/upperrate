@@ -1,5 +1,6 @@
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
+from telegram.ext import filters
 import time
 
 # Замените 'YOUR_API_TOKEN' на токен, который вы получили от BotFather
@@ -46,7 +47,7 @@ def main():
     dp.add_handler(CommandHandler("start", start))
 
     # Обработчик текстовых сообщений
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    dp.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Запуск периодической задачи
     job_queue = updater.job_queue
