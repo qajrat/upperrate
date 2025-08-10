@@ -1,5 +1,5 @@
-from telegram import Update, Bot
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import asyncio
 import time
 
@@ -15,44 +15,42 @@ RESPONSE_MESSAGE = "Спасибо!"
 # Хранилище для хранения информации о сообщениях
 user_messages = {}
 
-def start(update: Update, context: CallbackContext):
-    update.message.reply_text('Привет! Отправьте мне сообщение "привет", и я буду отвечать на него каждые две минуты.')
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('Привет! Отправьте мне сообщение "привет", и я буду отвечать на него каждые две минуты.')
 
-def handle_message(update: Update, context: CallbackContext):
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.message.from_user.id
-    if update.message.text.lower() == TARGET_MESSAGE:
+    if update.message.text and update.message.text.lower() == TARGET_MESSAGE:
         # Сохраняем информацию о сообщении
         user_messages[user_id] = {
             'chat_id': update.message.chat_id,
             'message_id': update.message.message_id,
             'last_response_time': time.time()
         }
-        update.message.reply_text(RESPONSE_MESSAGE)
+        await update.message.reply_text(RESPONSE_MESSAGE)
 
-async def periodic_check(bot: Bot):
-    while True:
-        current_time = time.time()
-        for user_id, message_info in list(user_messages.items()):
-            if current_time - message_info['last_response_time'] >= 120:  # 120 секунд = 2 минуты
-                await bot.send_message(chat_id=message_info['chat_id'], text=RESPONSE_MESSAGE)
-                user_messages[user_id]['last_response_time'] = current_time
-        await asyncio.sleep(60)  # Проверяем каждую минуту
+async def periodic_check(context: ContextTypes.DEFAULT_TYPE):
+    current_time = time.time()
+    for user_id, message_info in list(user_messages.items()):
+        if current_time - message_info['last_response_time'] >= 120:  # 120 секунд = 2 минуты
+            await context.bot.send_message(chat_id=message_info['chat_id'], text=RESPONSE_MESSAGE)
+            user_messages[user_id]['last_response_time'] = current_time
 
-def main():
-    bot = Bot(token=API_TOKEN)
-    updater = Updater(bot=bot, use_context=True)
+async def main():
+    # Создаем экземпляр Application и передаем ему токен вашего бота
+    application = Application.builder().token(API_TOKEN).build()
 
-    dp = updater.dispatcher
+    # Обработчик команды /start
+    application.add_handler(CommandHandler("start", start))
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    # Обработчик текстовых сообщений
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    # Запуск асинхронной задачи для периодической проверки
-    loop = asyncio.get_event_loop()
-    loop.create_task(periodic_check(bot))
+    # Запуск периодической задачи
+    application.job_queue.run_repeating(periodic_check, interval=60.0, first=0.0)
 
-    updater.start_polling()
-    updater.idle()
+    # Запуск бота
+    await application.run_polling()
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
