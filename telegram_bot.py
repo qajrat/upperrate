@@ -3,7 +3,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 import time
 
 # Замените 'YOUR_API_TOKEN' на токен, который вы получили от BotFather
-API_TOKEN = 'YOUR_API_TOKEN'
+API_TOKEN = '8473543376:AAEyqXRUnPP3WNY0KbhHcYsZY_-3whCJmkA'
 
 # Текст сообщения, на которое бот должен отвечать
 TARGET_MESSAGE = "привет"
