@@ -4,7 +4,7 @@ from telegram.ext import filters
 import time
 
 # Замените 'YOUR_API_TOKEN' на токен, который вы получили от BotFather
-API_TOKEN = 'YOUR_API_TOKEN'
+API_TOKEN = '8473543376:AAEyqXRUnPP3WNY0KbhHcYsZY_-3whCJmkA'
 
 # Текст сообщения, на которое бот должен отвечать
 TARGET_MESSAGE = "привет"
@@ -38,7 +38,7 @@ def periodic_check(context: CallbackContext):
 
 def main():
     # Создаем экземпляр Updater и передаем ему токен вашего бота
-    updater = Updater(API_TOKEN, use_context=True)
+    updater = Updater(API_TOKEN)
 
     # Получаем диспетчер для регистрации обработчиков
     dp = updater.dispatcher
