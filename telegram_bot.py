@@ -1,6 +1,9 @@
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import asyncio
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
+import os
 
 # Замените 'YOUR_API_TOKEN' на токен, который вы получили от BotFather
 API_TOKEN = '8473543376:AAEyqXRUnPP3WNY0KbhHcYsZY_-3whCJmkA'
@@ -50,6 +53,9 @@ async def main():
 
     # Запуск бота
     await application.run_polling()
+
+    # Запускаем HTTP-сервер для Render
+    threading.Thread(target=run_server, daemon=True).start()
 
 if __name__ == '__main__':
     asyncio.run(main())
