@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: upperrate
+    plan: free
+    # Используем Docker
+    runtime: docker
+    # Render автоматически найдёт Dockerfile
+    envVars:
+      - key: API_TOKEN
+        sync: false
